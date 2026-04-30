@@ -48,6 +48,16 @@ func (n *Notifier) Notify(s *monitor.SecretStatus) {
 	)
 }
 
+// NotifyIfNeeded writes an alert only if the status warrants one.
+// It returns true if an alert was sent.
+func (n *Notifier) NotifyIfNeeded(s *monitor.SecretStatus) bool {
+	if !ShouldAlert(s) {
+		return false
+	}
+	n.Notify(s)
+	return true
+}
+
 // ShouldAlert returns true if the status warrants an alert (non-OK).
 func ShouldAlert(s *monitor.SecretStatus) bool {
 	return s.Status == "warning" || s.Status == "expired"
