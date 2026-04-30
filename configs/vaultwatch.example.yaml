@@ -1,31 +1,33 @@
-# vaultwatch example configuration
-# Copy this file to vaultwatch.yaml and adjust values for your environment.
+# VaultWatch example configuration
+# Copy to vaultwatch.yaml and adjust as needed.
 
 vault:
-  # Address of your Vault server (required)
-  address: "https://vault.example.com:8200"
-
-  # Vault token with read access to secrets/leases you want to monitor.
-  # Alternatively, set the VAULT_TOKEN environment variable.
+  # Address of the Vault server (overridden by VAULT_ADDR env var)
+  address: "https://vault.example.com"
+  # Vault token (overridden by VAULT_TOKEN env var)
   token: ""
 
-  # (Optional) Vault namespace for Vault Enterprise
-  namespace: ""
+monitor:
+  # Paths to monitor for secret expiration
+  paths:
+    - "secret/data/db/password"
+    - "secret/data/api/key"
+  # How often to poll Vault (e.g. 30s, 5m)
+  interval: "5m"
+  # Warn when a secret expires within this window
+  warn_threshold: "72h"
+  # Critical alert when a secret expires within this window
+  critical_threshold: "24h"
 
-  # (Optional) Path to a PEM-encoded CA certificate for TLS verification
-  ca_cert: ""
+alert:
+  # Output format: table | json
+  format: "table"
+  # Minimum level to display/notify: info | warn | critical
+  min_level: "warn"
 
-# How often vaultwatch polls Vault for secret/lease status.
-# Minimum value: 5s
-poll_interval: 60s
-
-alerting:
-  # Emit a WARNING alert when a secret/lease expires within this duration.
-  warn_threshold: 168h     # 7 days
-
-  # Emit a CRITICAL alert when a secret/lease expires within this duration.
-  critical_threshold: 24h  # 1 day
-
-  # (Optional) Slack incoming webhook URL to post alerts.
-  # Leave empty to disable Slack notifications.
-  slack_webhook_url: ""
+webhook:
+  # Optional webhook URL to POST alerts to (leave empty to disable)
+  url: ""
+  # Optional extra HTTP headers (e.g. for authentication)
+  headers:
+    # X-Api-Key: "your-api-key"
