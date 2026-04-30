@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -58,6 +59,10 @@ func (w *WebhookNotifier) Send(payload WebhookPayload) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
+		if len(respBody) > 0 {
+			return fmt.Errorf("webhook: unexpected status %d from %s: %s", resp.StatusCode, w.URL, respBody)
+		}
 		return fmt.Errorf("webhook: unexpected status %d from %s", resp.StatusCode, w.URL)
 	}
 	return nil
